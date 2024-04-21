@@ -15,7 +15,7 @@ namespace Auth0.ManagementApi.Clients
     /// <param name="pagination">Specifies pagination info to use.</param>
     /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
     /// <returns>An <see cref="IPagedList{Action}"/> containing the actions.</returns>
-    Task<IPagedList<Action>> GetAllAsync(GetActionsRequest request, PaginationInfo pagination, CancellationToken cancellationToken = default);
+    Task<IPagedList<ActionBase>> GetAllAsync(GetActionsRequest request, PaginationInfo pagination, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieve an action by its ID.
@@ -23,7 +23,7 @@ namespace Auth0.ManagementApi.Clients
     /// <param name="id">The ID of the action to retrieve.</param>
     /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
     /// <returns>The retrieved action.</returns>
-    Task<Action> GetAsync(string id, CancellationToken cancellationToken = default);
+    Task<ActionBase> GetAsync(string id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Create an action. 
@@ -33,8 +33,8 @@ namespace Auth0.ManagementApi.Clients
     /// </remarks>
     /// <param name="request">Specifies criteria to use when creating an action.</param>
     /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
-    /// <returns>The new <see cref="Action"/> that has been created.</returns>
-    Task<Action> CreateAsync(CreateActionRequest request, CancellationToken cancellationToken = default);
+    /// <returns>The new <see cref="CodeAction"/> that has been created.</returns>
+    Task<CodeAction> CreateAsync(CreateActionRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Update an existing action.
@@ -45,8 +45,8 @@ namespace Auth0.ManagementApi.Clients
     /// <param name="id">The id of the action to update.</param>
     /// <param name="request">Specifies criteria to use when updating an action.</param>
     /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
-    /// <returns>The <see cref="Action"/> that was updated.</returns>
-    Task<Action> UpdateAsync(string id, UpdateActionRequest request, CancellationToken cancellationToken = default);
+    /// <returns>The <see cref="CodeAction"/> that was updated.</returns>
+    Task<CodeAction> UpdateAsync(string id, UpdateActionRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Deletes an action and all of its associated versions.
@@ -89,7 +89,7 @@ namespace Auth0.ManagementApi.Clients
     /// <param name="pagination">Specifies pagination info to use.</param>
     /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
     /// <returns>The retrieved versions of the specified action.</returns>
-    Task<IPagedList<ActionVersion>> GetAllVersionsAsync(string actionId, PaginationInfo pagination, CancellationToken cancellationToken = default);
+    Task<IPagedList<ActionVersionBase>> GetAllVersionsAsync(string actionId, PaginationInfo pagination, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieve a specific version of an action.
@@ -101,7 +101,7 @@ namespace Auth0.ManagementApi.Clients
     /// <param name="versionId">The ID of the action version.</param>
     /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
     /// <returns>The retrieved version of the specified action.</returns>
-    Task<ActionVersion> GetVersionAsync(string actionId, string versionId, CancellationToken cancellationToken = default);
+    Task<ActionVersionBase> GetVersionAsync(string actionId, string versionId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieve the actions that are bound to a trigger.
@@ -137,7 +137,7 @@ namespace Auth0.ManagementApi.Clients
     /// <param name="id">The ID of the action to deploy.</param>
     /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
     /// <returns>The action version that was created.</returns>
-    Task<ActionVersion> DeployAsync(string id, CancellationToken cancellationToken = default);
+    Task<DeployedCodeActionVersion> DeployAsync(string id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Performs the equivalent of a roll-back of an action to an earlier, specified version.
@@ -150,6 +150,6 @@ namespace Auth0.ManagementApi.Clients
     /// <param name="versionId">The ID of the version to deploy.</param>
     /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
     /// <returns>A <see cref="Task"/> that represents the asynchronous delete operation.</returns>
-    Task<ActionVersion> RollbackToVersionAsync(string actionId, string versionId, CancellationToken cancellationToken = default);
+    Task<DeployedCodeActionVersion> RollbackToVersionAsync(string actionId, string versionId, CancellationToken cancellationToken = default);
   }
 }

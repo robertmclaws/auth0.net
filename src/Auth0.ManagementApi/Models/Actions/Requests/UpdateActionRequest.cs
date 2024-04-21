@@ -3,7 +3,7 @@
     /// <summary>
     /// Request configuration for updating an action.
     /// </summary>
-    public class UpdateActionRequest: ActionBase
+    public class UpdateActionRequest: CodeAction
     {
 
     }

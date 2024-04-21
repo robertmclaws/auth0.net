@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Auth0.IntegrationTests.Shared.CleanUp;
-using Auth0.ManagementApi.IntegrationTests.Testing;
+﻿using Auth0.IntegrationTests.Shared.CleanUp;
 using Auth0.Tests.Shared;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Auth0.ManagementApi.IntegrationTests
@@ -35,6 +35,11 @@ namespace Auth0.ManagementApi.IntegrationTests
             identifiers[type].Add(identifier);
         }
 
+        public void TrackIdentifier(CleanUpType type, Guid identifier)
+        {
+            TrackIdentifier(type, identifier.ToString());
+        }
+
         public void UnTrackIdentifier(CleanUpType type, string identifier)
         {
             if (!identifiers.ContainsKey(type))
@@ -44,5 +49,11 @@ namespace Auth0.ManagementApi.IntegrationTests
 
             identifiers[type].Remove(identifier);
         }
+
+        public void UnTrackIdentifier(CleanUpType type, Guid identifier)
+        {
+            UnTrackIdentifier(type, identifier.ToString());
+        }
+
     }
 }

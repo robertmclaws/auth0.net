@@ -46,9 +46,9 @@ namespace Auth0.ManagementApi.IntegrationTests
             {
                 Name = $"{TestingConstants.ActionPrefix}-{Guid.NewGuid()}",
                 Code = "module.exports = () => {}",
-                Runtime = "node12",
-                Secrets = new List<ActionSecret> { new ActionSecret { Name = "My_Secret", Value  = "Test123" } },
-                SupportedTriggers = new List<ActionSupportedTrigger> { new ActionSupportedTrigger { Id = "post-login", Version = "v2"} }
+                Runtime = ActionRuntimeType.Node12,
+                Secrets = new List<ActionSecret> { new ActionSecret { Name = "My_Secret", Value = "Test123" } },
+                SupportedTriggers = new List<TriggerBase> { new TriggerBase { Id = TriggerType.PostLogin, Version = "v2" } }
             });
 
             fixture.TrackIdentifier(CleanUpType.Actions, createdAction.Id);
@@ -56,9 +56,9 @@ namespace Auth0.ManagementApi.IntegrationTests
             var actionsAfterCreate = await fixture.ApiClient.Actions.GetAllAsync(new GetActionsRequest(), new PaginationInfo());
 
             actionsAfterCreate.Count.Should().Be(actionsBeforeCreate.Count + 1);
-            createdAction.Should().BeEquivalentTo(actionsAfterCreate.Last(), options => options.Excluding(o => o.Status));
+            createdAction.Should().BeEquivalentTo(actionsAfterCreate.Last() as CodeAction, options => options.Excluding(o => o.Status));
 
-            var updatedAction = await fixture.ApiClient.Actions.UpdateAsync(createdAction.Id, new UpdateActionRequest
+            var updatedAction = await fixture.ApiClient.Actions.UpdateAsync(createdAction.Id.ToString(), new UpdateActionRequest
             {
                 Code = "module.exports = () => { console.log(true); }"
             });
@@ -66,12 +66,12 @@ namespace Auth0.ManagementApi.IntegrationTests
             updatedAction.Should().BeEquivalentTo(createdAction, options => options.Excluding(o => o.Code).Excluding(o => o.UpdatedAt));
             updatedAction.Code.Should().Be("module.exports = () => { console.log(true); }");
 
-            var actionAfterUpdate = await fixture.ApiClient.Actions.GetAsync(updatedAction.Id);
+            var actionAfterUpdate = await fixture.ApiClient.Actions.GetAsync(updatedAction.Id.ToString()) as CodeAction;
 
             updatedAction.Should().BeEquivalentTo(actionAfterUpdate, options => options.Excluding(o => o.Status));
             actionAfterUpdate.Code.Should().Be("module.exports = () => { console.log(true); }");
 
-            await fixture.ApiClient.Actions.DeleteAsync(actionAfterUpdate.Id);
+            await fixture.ApiClient.Actions.DeleteAsync(actionAfterUpdate.Id.ToString());
 
             var actionsAfterDelete = await fixture.ApiClient.Actions.GetAllAsync(new GetActionsRequest(), new PaginationInfo());
             actionsAfterDelete.Count.Should().Be(actionsBeforeCreate.Count);
@@ -91,24 +91,24 @@ namespace Auth0.ManagementApi.IntegrationTests
         public async Task Test_get_and_update_trigger_bindings()
         {
             var triggerBindingsBeforeCreate = await fixture.ApiClient.Actions.GetAllTriggerBindingsAsync("post-login", new PaginationInfo());
-            
+
             var createdAction = await fixture.ApiClient.Actions.CreateAsync(new CreateActionRequest
             {
                 Name = $"{TestingConstants.ActionPrefix}-{Guid.NewGuid()}",
                 Code = "module.exports = () => {}",
-                Runtime = "node12",
+                Runtime = ActionRuntimeType.Node12,
                 Secrets = new List<ActionSecret> { new ActionSecret { Name = "My_Secret", Value = "Test123" } },
-                SupportedTriggers = new List<ActionSupportedTrigger> { new ActionSupportedTrigger { Id = "post-login", Version = "v2" } }
+                SupportedTriggers = new List<TriggerBase> { new TriggerBase { Id = TriggerType.PostLogin, Version = "v2" } }
             });
 
             fixture.TrackIdentifier(CleanUpType.Actions, createdAction.Id);
 
-            await RetryUtils.Retry(() => fixture.ApiClient.Actions.GetAsync(createdAction.Id), response => response.Status != "built");
+            await RetryUtils.Retry(() => fixture.ApiClient.Actions.GetAsync(createdAction.Id.ToString()), response => (response as CodeAction)?.Status is not ActionStatusType.Built);
 
-            await fixture.ApiClient.Actions.DeployAsync(createdAction.Id);
+            await fixture.ApiClient.Actions.DeployAsync(createdAction.Id.ToString());
 
             // 
-            await RetryUtils.Retry(() => fixture.ApiClient.Actions.GetAsync(createdAction.Id), response => !response.AllChangesDeployed);
+            await RetryUtils.Retry(() => fixture.ApiClient.Actions.GetAsync(createdAction.Id.ToString()), response => !response.AllChangesDeployed);
 
             await fixture.ApiClient.Actions.UpdateTriggerBindingsAsync("post-login", new UpdateTriggerBindingsRequest
             {
@@ -119,7 +119,7 @@ namespace Auth0.ManagementApi.IntegrationTests
                         Ref = new UpdateTriggerBindingEntry.BindingRef
                         {
                             Type = "action_id",
-                            Value = createdAction.Id
+                            Value = createdAction.Id.ToString()
                         },
                         DisplayName = "My Action"
                     }
@@ -135,7 +135,7 @@ namespace Auth0.ManagementApi.IntegrationTests
                 Bindings = new List<UpdateTriggerBindingEntry>()
             });
 
-            await fixture.ApiClient.Actions.DeleteAsync(createdAction.Id);
+            await fixture.ApiClient.Actions.DeleteAsync(createdAction.Id.ToString());
 
             fixture.UnTrackIdentifier(CleanUpType.Actions, createdAction.Id);
         }
@@ -143,75 +143,75 @@ namespace Auth0.ManagementApi.IntegrationTests
         [Fact]
         public async Task Test_action_version_crud_sequence()
         {
-            // 1. Create a new Action
+            // 1. Create a new CodeAction
             var createdAction = await fixture.ApiClient.Actions.CreateAsync(new CreateActionRequest
             {
                 Name = $"{TestingConstants.ActionPrefix}-{Guid.NewGuid()}",
                 Code = "module.exports = () => {}",
-                Runtime = "node12",
+                Runtime = ActionRuntimeType.Node12,
                 Secrets = new List<ActionSecret> { new ActionSecret { Name = "My_Secret", Value = "Test123" } },
-                SupportedTriggers = new List<ActionSupportedTrigger> { new ActionSupportedTrigger { Id = "post-login", Version = "v2" } }
+                SupportedTriggers = new List<TriggerBase> { new TriggerBase { Id = TriggerType.PostLogin, Version = "v2" } }
             });
 
             fixture.TrackIdentifier(CleanUpType.Actions, createdAction.Id);
 
             // 2. Get all the versions after the action was created
-            var versionsAfterCreate = await fixture.ApiClient.Actions.GetAllVersionsAsync(createdAction.Id, new PaginationInfo());
-            
+            var versionsAfterCreate = await fixture.ApiClient.Actions.GetAllVersionsAsync(createdAction.Id.ToString(), new PaginationInfo());
+
             versionsAfterCreate.Count.Should().Be(0);
 
             // 3.a Before deploying, ensure it's in built status (this is async and sometimes causes CI to fail)
-            await RetryUtils.Retry(() => fixture.ApiClient.Actions.GetAsync(createdAction.Id), (action) => action.Status != "built");
+            await RetryUtils.Retry(() => fixture.ApiClient.Actions.GetAsync(createdAction.Id.ToString()), (action) => (action as CodeAction)?.Status is not ActionStatusType.Built);
 
             // 3.b Deploy the current version
-            await fixture.ApiClient.Actions.DeployAsync(createdAction.Id);
+            await fixture.ApiClient.Actions.DeployAsync(createdAction.Id.ToString());
 
             // 4. Get all the versions after the action was deployed
-            var versionsAfterDeploy = await fixture.ApiClient.Actions.GetAllVersionsAsync(createdAction.Id, new PaginationInfo());
-            
+            var versionsAfterDeploy = await fixture.ApiClient.Actions.GetAllVersionsAsync(createdAction.Id.ToString(), new PaginationInfo());
+
             versionsAfterDeploy.Count.Should().Be(1);
 
             // 5. Update the action
-            await fixture.ApiClient.Actions.UpdateAsync(createdAction.Id, new UpdateActionRequest
+            await fixture.ApiClient.Actions.UpdateAsync(createdAction.Id.ToString(), new UpdateActionRequest
             {
                 Code = "module.exports = () => { console.log(true); }"
             });
 
             // 6.a Before deploying, ensure it's in built status (this is async and sometimes causes CI to fail)
-            await RetryUtils.Retry(() => fixture.ApiClient.Actions.GetAsync(createdAction.Id), (action) => action.Status != "built");
+            await RetryUtils.Retry(() => fixture.ApiClient.Actions.GetAsync(createdAction.Id.ToString()), (action) => (action as CodeAction)?.Status is not ActionStatusType.Built);
 
             // 6.b. Deploy the latest version
-            var deployedVersion = await fixture.ApiClient.Actions.DeployAsync(createdAction.Id);
+            var deployedVersion = await fixture.ApiClient.Actions.DeployAsync(createdAction.Id.ToString());
 
-            // Wait 2 seconds because it can take a while for the Action to be deployed
+            // Wait 2 seconds because it can take a while for the CodeAction to be deployed
             await Task.Delay(2000);
 
             // 7. Get all the versions after the action was updated
-            var versionsAfterSecondDeploy = await fixture.ApiClient.Actions.GetAllVersionsAsync(createdAction.Id, new PaginationInfo());
+            var versionsAfterSecondDeploy = await fixture.ApiClient.Actions.GetAllVersionsAsync(createdAction.Id.ToString(), new PaginationInfo());
 
             versionsAfterSecondDeploy.Count.Should().Be(2);
-            versionsAfterSecondDeploy.Single(v => v.Id == deployedVersion.Id).Deployed.Should().BeTrue();
-            versionsAfterSecondDeploy.Single(v => v.Id != deployedVersion.Id).Deployed.Should().BeFalse();
+            versionsAfterSecondDeploy.Single(v => v.Id == deployedVersion.Id).As<DeployedCodeActionVersion>().IsDeployed.Should().BeTrue();
+            versionsAfterSecondDeploy.Single(v => v.Id != deployedVersion.Id).As<DeployedCodeActionVersion>().IsDeployed.Should().BeFalse();
 
-            var action = await fixture.ApiClient.Actions.GetAsync(createdAction.Id);
+            var action = await fixture.ApiClient.Actions.GetAsync(createdAction.Id.ToString()) as CodeAction;
             action.DeployedVersion.Id.Should().Be(deployedVersion.Id);
 
             // 9. Rollback
-            var rollbackedVersion = await fixture.ApiClient.Actions.RollbackToVersionAsync(createdAction.Id, versionsAfterDeploy.Single().Id);
+            var rollbackedVersion = await fixture.ApiClient.Actions.RollbackToVersionAsync(createdAction.Id.ToString(), versionsAfterDeploy.Single().Id.ToString());
 
             // 10. Get all the versions after the action was rollbacked
             // Retry until the rollback was processed as this is async
-            var versionAfterRollback = await RetryUtils.Retry(() => fixture.ApiClient.Actions.GetVersionAsync(createdAction.Id, rollbackedVersion.Id), (response) => response.Deployed == false);
+            var versionAfterRollback = await RetryUtils.Retry(() => fixture.ApiClient.Actions.GetVersionAsync(createdAction.Id.ToString(), rollbackedVersion.Id.ToString()), (response) => response.As<DeployedCodeActionVersion>().IsDeployed is false);
 
-            var versionsAfterRollback = await fixture.ApiClient.Actions.GetAllVersionsAsync(createdAction.Id, new PaginationInfo());
+            var versionsAfterRollback = await fixture.ApiClient.Actions.GetAllVersionsAsync(createdAction.Id.ToString(), new PaginationInfo());
 
             versionsAfterRollback.Count.Should().Be(3);
             versionsAfterRollback.Single(v => v.Id == versionAfterRollback.Id).Should().BeEquivalentTo(versionAfterRollback);
-            versionsAfterRollback.Single(v => v.Id == versionAfterRollback.Id).Deployed.Should().BeTrue();
-            versionsAfterRollback.Where(v => v.Id != versionAfterRollback.Id).ToList().ForEach(v => v.Deployed.Should().BeFalse());
+            versionsAfterRollback.Single(v => v.Id == versionAfterRollback.Id).As<DeployedCodeActionVersion>().IsDeployed.Should().BeTrue();
+            versionsAfterRollback.Where(v => v.Id != versionAfterRollback.Id).ToList().ForEach(v => v.As<DeployedCodeActionVersion>().IsDeployed.Should().BeFalse());
 
-            // 10. Delete Action
-            await fixture.ApiClient.Actions.DeleteAsync(createdAction.Id);
+            // 10. Delete CodeAction
+            await fixture.ApiClient.Actions.DeleteAsync(createdAction.Id.ToString());
 
             fixture.UnTrackIdentifier(CleanUpType.Actions, createdAction.Id);
         }

@@ -19,8 +19,8 @@
     <ComVisible>false</ComVisible>
   </PropertyGroup>
   <PropertyGroup>
-    <LangVersion>7.1</LangVersion>
-    <Version>7.26.1</Version>
+    <LangVersion>12</LangVersion>
+    <Version>8.0.0</Version>
     <Suffix/>
   </PropertyGroup>
   <PropertyGroup>

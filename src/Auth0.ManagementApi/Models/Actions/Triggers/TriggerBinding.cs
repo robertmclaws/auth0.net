@@ -24,7 +24,7 @@ namespace Auth0.ManagementApi.Models.Actions
         /// The connected action.
         /// </summary>
         [JsonProperty("action")]
-        public Action Action { get; set; }
+        public CodeAction Action { get; set; }
 
         /// <summary>
         /// The time when the binding was created.

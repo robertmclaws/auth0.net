@@ -1,13 +1,13 @@
-﻿using System;
+﻿using Auth0.ManagementApi.Models.Actions;
+using Auth0.ManagementApi.Paging;
+using Auth0.ManagementApi.Serialization;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Auth0.ManagementApi.Models;
-using Auth0.ManagementApi.Models.Actions;
-using Auth0.ManagementApi.Paging;
-using Newtonsoft.Json;
-using Action = Auth0.ManagementApi.Models.Actions.Action;
+using CodeAction = Auth0.ManagementApi.Models.Actions.CodeAction;
 
 namespace Auth0.ManagementApi.Clients
 {
@@ -24,11 +24,11 @@ namespace Auth0.ManagementApi.Clients
         private const string BindingsPath = "bindings";
         private const string DeployPath = "deploy";
 
-        private readonly JsonConverter[] _actionsConverters = { new PagedListConverter<Action>("actions") };
-        private readonly JsonConverter[] _triggersConverters = { new ListConverter<Trigger>("triggers") };
-        private readonly JsonConverter[] _versionsConverters = { new PagedListConverter<ActionVersion>("versions") };
+        private readonly JsonConverter[] _actionsConverters = [new PagedListConverter<CodeAction>("actions"), new ActionJsonConverter()];
+        private readonly JsonConverter[] _triggersConverters = [new ListConverter<Trigger>("triggers")];
+        private readonly JsonConverter[] _versionsConverters = [new PagedListConverter<CodeActionVersion>("versions"), new VersionJsonConverter()];
         private readonly JsonConverter[] _triggerBindingsConverters = { new PagedListConverter<TriggerBinding>("bindings") };
-        private readonly JsonConverter[] _triggerBindingsListConverters = { new ListConverter<TriggerBinding>("bindings") };
+        private readonly JsonConverter[] _triggerBindingsListConverters = [new ListConverter<TriggerBinding>("bindings")];
 
         public ActionsClient(IManagementConnection connection, Uri baseUri, IDictionary<string, string> defaultHeaders) : base(connection, baseUri, defaultHeaders)
         {
@@ -41,7 +41,7 @@ namespace Auth0.ManagementApi.Clients
         /// <param name="pagination">Specifies pagination info to use.</param>
         /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
         /// <returns>An <see cref="IPagedList{Action}"/> containing the actions.</returns>
-        public Task<IPagedList<Action>> GetAllAsync(GetActionsRequest request, PaginationInfo pagination, CancellationToken cancellationToken = default)
+        public Task<IPagedList<ActionBase>> GetAllAsync(GetActionsRequest request, PaginationInfo pagination, CancellationToken cancellationToken = default)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
@@ -60,7 +60,7 @@ namespace Auth0.ManagementApi.Clients
                 {"installed", request.Installed?.ToString()},
             };
 
-            return Connection.GetAsync<IPagedList<Action>>(BuildUri($"{ActionsBasePath}/{ActionsPath}", queryStrings), DefaultHeaders, _actionsConverters, cancellationToken);
+            return Connection.GetAsync<IPagedList<ActionBase>>(BuildUri($"{ActionsBasePath}/{ActionsPath}", queryStrings), DefaultHeaders, _actionsConverters, cancellationToken);
         }
 
         /// <summary>
@@ -69,9 +69,9 @@ namespace Auth0.ManagementApi.Clients
         /// <param name="id">The ID of the action to retrieve.</param>
         /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
         /// <returns>The retrieved action.</returns>
-        public Task<Action> GetAsync(string id, CancellationToken cancellationToken = default)
+        public Task<ActionBase> GetAsync(string id, CancellationToken cancellationToken = default)
         {
-            return Connection.GetAsync<Action>(BuildUri($"{ActionsBasePath}/{ActionsPath}/{EncodePath(id)}"), DefaultHeaders, cancellationToken: cancellationToken);
+            return Connection.GetAsync<ActionBase>(BuildUri($"{ActionsBasePath}/{ActionsPath}/{EncodePath(id)}"), DefaultHeaders, cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -82,10 +82,10 @@ namespace Auth0.ManagementApi.Clients
         /// </remarks>
         /// <param name="request">Specifies criteria to use when creating an action.</param>
         /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
-        /// <returns>The new <see cref="Action"/> that has been created.</returns>
-        public Task<Action> CreateAsync(CreateActionRequest request, CancellationToken cancellationToken = default)
+        /// <returns>The new <see cref="CodeAction"/> that has been created.</returns>
+        public Task<CodeAction> CreateAsync(CreateActionRequest request, CancellationToken cancellationToken = default)
         {
-            return Connection.SendAsync<Action>(HttpMethod.Post, BuildUri($"{ActionsBasePath}/{ActionsPath}"), request, DefaultHeaders, cancellationToken: cancellationToken);
+            return Connection.SendAsync<CodeAction>(HttpMethod.Post, BuildUri($"{ActionsBasePath}/{ActionsPath}"), request, DefaultHeaders, cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -97,10 +97,10 @@ namespace Auth0.ManagementApi.Clients
         /// <param name="id">The id of the action to update.</param>
         /// <param name="request">Specifies criteria to use when updating an action.</param>
         /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
-        /// <returns>The <see cref="Action"/> that was updated.</returns>
-        public Task<Action> UpdateAsync(string id, UpdateActionRequest request, CancellationToken cancellationToken = default)
+        /// <returns>The <see cref="CodeAction"/> that was updated.</returns>
+        public Task<CodeAction> UpdateAsync(string id, UpdateActionRequest request, CancellationToken cancellationToken = default)
         {
-            return Connection.SendAsync<Action>(new HttpMethod("PATCH"), BuildUri($"{ActionsBasePath}/{ActionsPath}/{EncodePath(id)}"), request, DefaultHeaders, cancellationToken: cancellationToken);
+            return Connection.SendAsync<CodeAction>(new HttpMethod("PATCH"), BuildUri($"{ActionsBasePath}/{ActionsPath}/{EncodePath(id)}"), request, DefaultHeaders, cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -154,7 +154,7 @@ namespace Auth0.ManagementApi.Clients
         /// <param name="pagination">Specifies pagination info to use.</param>
         /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
         /// <returns>The retrieved versions of the specified action.</returns>
-        public Task<IPagedList<ActionVersion>> GetAllVersionsAsync(string actionId, PaginationInfo pagination, CancellationToken cancellationToken = default)
+        public Task<IPagedList<ActionVersionBase>> GetAllVersionsAsync(string actionId, PaginationInfo pagination, CancellationToken cancellationToken = default)
         {
             var queryStrings = new Dictionary<string, string>
             {
@@ -163,7 +163,7 @@ namespace Auth0.ManagementApi.Clients
                 // {"include_totals", pagination.IncludeTotals.ToString()}
             };
 
-            return Connection.GetAsync<IPagedList<ActionVersion>>(BuildUri($"{ActionsBasePath}/{ActionsPath}/{EncodePath(actionId)}/{VersionsPath}", queryStrings), DefaultHeaders, _versionsConverters, cancellationToken);
+            return Connection.GetAsync<IPagedList<ActionVersionBase>>(BuildUri($"{ActionsBasePath}/{ActionsPath}/{EncodePath(actionId)}/{VersionsPath}", queryStrings), DefaultHeaders, _versionsConverters, cancellationToken);
         }
 
         /// <summary>
@@ -176,9 +176,9 @@ namespace Auth0.ManagementApi.Clients
         /// <param name="versionId">The ID of the action version.</param>
         /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
         /// <returns>The retrieved version of the specified action.</returns>
-        public Task<ActionVersion> GetVersionAsync(string actionId, string versionId, CancellationToken cancellationToken = default)
+        public Task<ActionVersionBase> GetVersionAsync(string actionId, string versionId, CancellationToken cancellationToken = default)
         {
-            return Connection.GetAsync<ActionVersion>(BuildUri($"{ActionsBasePath}/{ActionsPath}/{EncodePath(actionId)}/{VersionsPath}/{EncodePath(versionId)}"), DefaultHeaders, cancellationToken: cancellationToken);
+            return Connection.GetAsync<ActionVersionBase>(BuildUri($"{ActionsBasePath}/{ActionsPath}/{EncodePath(actionId)}/{VersionsPath}/{EncodePath(versionId)}"), DefaultHeaders, cancellationToken: cancellationToken);
         }
 
 
@@ -229,9 +229,9 @@ namespace Auth0.ManagementApi.Clients
         /// <param name="id">The ID of the action to deploy.</param>
         /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
         /// <returns>The action version that was created.</returns>
-        public Task<ActionVersion> DeployAsync(string id, CancellationToken cancellationToken = default)
+        public Task<DeployedCodeActionVersion> DeployAsync(string id, CancellationToken cancellationToken = default)
         {
-            return Connection.SendAsync<ActionVersion>(HttpMethod.Post, BuildUri($"{ActionsBasePath}/{ActionsPath}/{EncodePath(id)}/{DeployPath}"), null, DefaultHeaders, cancellationToken: cancellationToken);
+            return Connection.SendAsync<DeployedCodeActionVersion>(HttpMethod.Post, BuildUri($"{ActionsBasePath}/{ActionsPath}/{EncodePath(id)}/{DeployPath}"), null, DefaultHeaders, cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -245,9 +245,9 @@ namespace Auth0.ManagementApi.Clients
         /// <param name="versionId">The ID of the version to deploy.</param>
         /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
         /// <returns>A <see cref="Task"/> that represents the asynchronous delete operation.</returns>
-        public Task<ActionVersion> RollbackToVersionAsync(string actionId, string versionId, CancellationToken cancellationToken = default)
+        public Task<DeployedCodeActionVersion> RollbackToVersionAsync(string actionId, string versionId, CancellationToken cancellationToken = default)
         {
-            return Connection.SendAsync<ActionVersion>(HttpMethod.Post, BuildUri($"{ActionsBasePath}/{ActionsPath}/{EncodePath(actionId)}/versions/{versionId}/deploy"), new {}, DefaultHeaders, cancellationToken: cancellationToken);
+            return Connection.SendAsync<DeployedCodeActionVersion>(HttpMethod.Post, BuildUri($"{ActionsBasePath}/{ActionsPath}/{EncodePath(actionId)}/versions/{versionId}/deploy"), new {}, DefaultHeaders, cancellationToken: cancellationToken);
         }
     }
 }
