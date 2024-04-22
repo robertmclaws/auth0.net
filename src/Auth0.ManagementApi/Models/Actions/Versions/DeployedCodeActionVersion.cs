@@ -14,9 +14,13 @@ namespace Auth0.ManagementApi.Models.Actions
     {
 
         /// <summary>
+        /// A summary of the resulting Action deployed for this Version.
+        /// </summary>
+        public ActionBase Action { get; set; }
+
+        /// <summary>
         /// The time when a version was compiled. Only Auth0 will update an action version as it is being built.
         /// </summary>
-        [JsonProperty("built_at")]
         public DateTime BuiltAt { get; set; }
 
         /// <summary>
@@ -27,13 +31,11 @@ namespace Auth0.ManagementApi.Models.Actions
         /// <summary>
         /// The list of third party npm modules, and their versions, that this specific version depends on.
         /// </summary>
-        [JsonProperty("dependencies")]
         public IList<CodeActionDependency> Dependencies { get; set; }
 
         /// <summary>
         /// Any errors that occurred while the version was being built.
         /// </summary>
-        [JsonProperty("errors")]
         public IList<ActionError> Errors { get; set; }
 
         /// <summary>
@@ -44,7 +46,6 @@ namespace Auth0.ManagementApi.Models.Actions
         /// <summary>
         /// The list of secrets that are included in the version.
         /// </summary>
-        [JsonProperty("secrets")]
         public IList<CodeActionDependency> Secrets { get; set; }
 
         /// <summary>
