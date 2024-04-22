@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace Auth0.ManagementApi.Models.Actions
 {
@@ -9,6 +10,7 @@ namespace Auth0.ManagementApi.Models.Actions
     /// <typeparam name="TCurrent"></typeparam>
     /// <typeparam name="TDeployed"></typeparam>
     /// <remarks>This class exists because we don't want generics over-complicating the base return types.</remarks>
+    [JsonObject(NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
     public class DeployableActionBase<TCurrent, TDeployed> : ActionBase
         where TCurrent : ActionVersionBase
         where TDeployed : DeployedActionVersion

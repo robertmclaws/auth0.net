@@ -4,6 +4,10 @@ using System;
 
 namespace Auth0.ManagementApi.Models.Actions
 {
+
+    /// <summary>
+    /// 
+    /// </summary>
     [JsonObject(NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
     public class ActionVersionBase
     {
@@ -34,4 +38,5 @@ namespace Auth0.ManagementApi.Models.Actions
         public DateTime UpdatedAt { get; set; }
 
     }
+
 }

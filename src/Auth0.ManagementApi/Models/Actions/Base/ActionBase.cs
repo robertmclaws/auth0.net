@@ -10,7 +10,7 @@ namespace Auth0.ManagementApi.Models.Actions
     /// 
     /// </summary>
     [JsonObject(NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-    public abstract class ActionBase
+    public class ActionBase
     {
         /// <summary>
         /// Indicates if all of an Action's contents have been deployed.
