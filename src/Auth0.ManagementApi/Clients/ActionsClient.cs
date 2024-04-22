@@ -24,9 +24,9 @@ namespace Auth0.ManagementApi.Clients
         private const string BindingsPath = "bindings";
         private const string DeployPath = "deploy";
 
-        private readonly JsonConverter[] _actionsConverters = [new PagedListConverter<CodeAction>("actions"), new ActionJsonConverter()];
+        private readonly JsonConverter[] _actionsConverters = [new PagedListConverter<ActionBase>("actions"), new ActionJsonConverter()];
         private readonly JsonConverter[] _triggersConverters = [new ListConverter<Trigger>("triggers")];
-        private readonly JsonConverter[] _versionsConverters = [new PagedListConverter<CodeActionVersion>("versions"), new VersionJsonConverter()];
+        private readonly JsonConverter[] _versionsConverters = [new PagedListConverter<ActionVersionBase>("versions"), new VersionJsonConverter()];
         private readonly JsonConverter[] _triggerBindingsConverters = { new PagedListConverter<TriggerBinding>("bindings") };
         private readonly JsonConverter[] _triggerBindingsListConverters = [new ListConverter<TriggerBinding>("bindings")];
 

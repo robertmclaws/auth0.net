@@ -1,4 +1,5 @@
 using Auth0.ManagementApi.Models.Actions;
+using Auth0.ManagementApi.Paging;
 using Auth0.ManagementApi.Serialization;
 using FluentAssertions;
 using Newtonsoft.Json;
@@ -345,6 +346,16 @@ namespace Auth0.ManagementApi.IntegrationTests.Serialization
             action3.DeployedVersion.SupportedTriggers[0].Version.Should().Be("v3");
             action3.IsCurrentVersionDeployed.Should().BeTrue();
             action3.AllChangesDeployed.Should().BeFalse();
+        }
+
+        [Fact]
+        public void PagedList_Should_DeserializeProperly()
+        {
+            var source = $"{{\"actions\":{actions},\"total\":3,\"limit\":50,\"start\":0}}";
+            var list = JsonConvert.DeserializeObject<PagedList<ActionBase>>(source, new PagedListConverter<ActionBase>("actions"), new ActionJsonConverter());
+            list.Should().NotBeNull();
+            list.Count.Should().Be(3);
+
         }
 
     }
