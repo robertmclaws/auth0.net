@@ -1,4 +1,6 @@
-﻿namespace Auth0.ManagementApi.Models.Actions
+﻿using Newtonsoft.Json;
+
+namespace Auth0.ManagementApi.Models.Actions
 {
 
     /// <summary>
@@ -25,6 +27,7 @@
         /// <summary>
         /// Indicates if this Action is the currently Deployed one.
         /// </summary>
+        [JsonIgnore]
         public bool IsCurrentVersionDeployed => DeployedVersion?.Id == CurrentVersion?.Id;
 
     }
