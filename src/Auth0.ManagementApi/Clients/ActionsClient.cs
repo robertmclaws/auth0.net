@@ -71,7 +71,7 @@ namespace Auth0.ManagementApi.Clients
         /// <returns>The retrieved action.</returns>
         public Task<ActionBase> GetAsync(string id, CancellationToken cancellationToken = default)
         {
-            return Connection.GetAsync<ActionBase>(BuildUri($"{ActionsBasePath}/{ActionsPath}/{EncodePath(id)}"), DefaultHeaders, cancellationToken: cancellationToken);
+            return Connection.GetAsync<ActionBase>(BuildUri($"{ActionsBasePath}/{ActionsPath}/{EncodePath(id)}"), DefaultHeaders, _actionsConverters, cancellationToken);
         }
 
         /// <summary>
@@ -178,7 +178,7 @@ namespace Auth0.ManagementApi.Clients
         /// <returns>The retrieved version of the specified action.</returns>
         public Task<ActionVersionBase> GetVersionAsync(string actionId, string versionId, CancellationToken cancellationToken = default)
         {
-            return Connection.GetAsync<ActionVersionBase>(BuildUri($"{ActionsBasePath}/{ActionsPath}/{EncodePath(actionId)}/{VersionsPath}/{EncodePath(versionId)}"), DefaultHeaders, cancellationToken: cancellationToken);
+            return Connection.GetAsync<ActionVersionBase>(BuildUri($"{ActionsBasePath}/{ActionsPath}/{EncodePath(actionId)}/{VersionsPath}/{EncodePath(versionId)}"), DefaultHeaders, _versionsConverters, cancellationToken);
         }
 
 
