@@ -1,19 +1,31 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace Auth0.ManagementApi.Models.Actions
 {
+
     /// <summary>
     /// Request configuration for updating an action.
     /// </summary>
-    public class UpdateActionRequest: CodeAction
+    [JsonObject(NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
+    public class UpdateActionRequest : ActionRequestBase
     {
 
-        [JsonIgnore]
-        public new bool AllChangesDeployed { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public UpdateActionRequest() : base()
+        {
+        }
 
-
-
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="action"></param>
+        public UpdateActionRequest(CodeAction action) : base(action)
+        {
+        }
 
     }
+
 }

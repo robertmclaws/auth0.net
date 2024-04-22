@@ -3,6 +3,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace Auth0.ManagementApi.Models.Actions
 {
+
     /// <summary>
     /// Request configuration for deleting an action.
     /// </summary>
@@ -13,5 +14,7 @@ namespace Auth0.ManagementApi.Models.Actions
         /// Force action deletion detaching bindings
         /// </summary>
         public bool? Force { get; set; }
+
     }
+
 }
