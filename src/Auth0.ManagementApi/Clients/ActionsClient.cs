@@ -193,7 +193,7 @@ namespace Auth0.ManagementApi.Clients
         /// <param name="pagination">Specifies pagination info to use.</param>
         /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
         /// <returns>The retrieved trigger bindings.</returns>
-        public Task<IPagedList<TriggerBinding>> GetAllTriggerBindingsAsync(string triggerId, PaginationInfo pagination, CancellationToken cancellationToken = default)
+        public Task<IPagedList<TriggerBinding>> GetTriggerBindingsAsync(string triggerId, PaginationInfo pagination, CancellationToken cancellationToken = default)
         {
             var queryStrings = new Dictionary<string, string>
             {

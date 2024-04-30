@@ -114,7 +114,7 @@ namespace Auth0.ManagementApi.Clients
     /// <param name="pagination">Specifies pagination info to use.</param>
     /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
     /// <returns>The retrieved trigger bindings.</returns>
-    Task<IPagedList<TriggerBinding>> GetAllTriggerBindingsAsync(string triggerId, PaginationInfo pagination, CancellationToken cancellationToken = default);
+    Task<IPagedList<TriggerBinding>> GetTriggerBindingsAsync(string triggerId, PaginationInfo pagination, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Update the actions that are bound (i.e. attached) to a trigger.

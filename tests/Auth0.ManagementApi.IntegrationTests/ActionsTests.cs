@@ -88,7 +88,7 @@ namespace Auth0.ManagementApi.IntegrationTests
         [Fact]
         public async Task Test_get_and_update_trigger_bindings()
         {
-            var triggerBindingsBeforeCreate = await fixture.ApiClient.Actions.GetAllTriggerBindingsAsync("post-login", new PaginationInfo());
+            var triggerBindingsBeforeCreate = await fixture.ApiClient.Actions.GetTriggerBindingsAsync("post-login", new PaginationInfo());
 
             var createdAction = await fixture.ApiClient.Actions.CreateAsync(new CreateActionRequest
             {
@@ -116,7 +116,7 @@ namespace Auth0.ManagementApi.IntegrationTests
                 }
             });
 
-            var triggerBindingsAfterCreate = await fixture.ApiClient.Actions.GetAllTriggerBindingsAsync("post-login", new PaginationInfo());
+            var triggerBindingsAfterCreate = await fixture.ApiClient.Actions.GetTriggerBindingsAsync("post-login", new PaginationInfo());
 
             triggerBindingsAfterCreate.Count.Should().Be(triggerBindingsBeforeCreate.Count + 1);
 
