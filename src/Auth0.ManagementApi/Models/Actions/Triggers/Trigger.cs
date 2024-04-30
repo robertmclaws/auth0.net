@@ -14,7 +14,7 @@ namespace Auth0.ManagementApi.Models.Actions
         /// <summary>
         /// Runtimes supported by this trigger.
         /// </summary>
-        public List<ActionRuntimeType> Runtimes { get; set; }
+        public System.Collections.Generic.List<ActionRuntimeType> Runtimes { get; set; }
 
         /// <summary>
         /// Runtime that will be used when none is specified when creating an action.
@@ -24,7 +24,7 @@ namespace Auth0.ManagementApi.Models.Actions
         /// <summary>
         /// 
         /// </summary>
-        public List<TriggerBase> CompatibleTriggers { get; set; }
+        public System.Collections.Generic.List<TriggerBase> CompatibleTriggers { get; set; }
     }
 
 }

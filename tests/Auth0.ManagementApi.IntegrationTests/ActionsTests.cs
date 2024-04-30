@@ -1,14 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using Auth0.Core.Exceptions;
 using Auth0.IntegrationTests.Shared.CleanUp;
 using Auth0.ManagementApi.IntegrationTests.Testing;
 using Auth0.ManagementApi.Models.Actions;
 using Auth0.ManagementApi.Paging;
 using FluentAssertions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 
@@ -47,8 +45,8 @@ namespace Auth0.ManagementApi.IntegrationTests
                 Name = $"{TestingConstants.ActionPrefix}-{Guid.NewGuid()}",
                 Code = "module.exports = () => {}",
                 Runtime = ActionRuntimeType.Node12,
-                Secrets = new List<ActionSecret> { new ActionSecret { Name = "My_Secret", Value = "Test123" } },
-                SupportedTriggers = new List<TriggerBase> { new TriggerBase { Id = TriggerType.PostLogin, Version = "v2" } }
+                Secrets = new List<ActionSecret> { new ActionSecret("My_Secret", "Test123") },
+                SupportedTriggers = new List<TriggerBase> { new TriggerBase(TriggerType.PostLogin, "v2") }
             });
 
             fixture.TrackIdentifier(CleanUpType.Actions, createdAction.Id);
@@ -97,8 +95,8 @@ namespace Auth0.ManagementApi.IntegrationTests
                 Name = $"{TestingConstants.ActionPrefix}-{Guid.NewGuid()}",
                 Code = "module.exports = () => {}",
                 Runtime = ActionRuntimeType.Node12,
-                Secrets = new List<ActionSecret> { new ActionSecret { Name = "My_Secret", Value = "Test123" } },
-                SupportedTriggers = new List<TriggerBase> { new TriggerBase { Id = TriggerType.PostLogin, Version = "v2" } }
+                Secrets = new List<ActionSecret> { new ActionSecret("My_Secret", "Test123") },
+                SupportedTriggers = new List<TriggerBase> { new TriggerBase(TriggerType.PostLogin, "v2") }
             });
 
             fixture.TrackIdentifier(CleanUpType.Actions, createdAction.Id);
@@ -114,15 +112,7 @@ namespace Auth0.ManagementApi.IntegrationTests
             {
                 Bindings = new List<UpdateTriggerBindingEntry>
                 {
-                    new UpdateTriggerBindingEntry
-                    {
-                        Ref = new UpdateTriggerBindingEntry.BindingRef
-                        {
-                            Type = "action_id",
-                            Value = createdAction.Id.ToString()
-                        },
-                        DisplayName = "My Action"
-                    }
+                    new("My Binding", TriggerReferenceType.ActionId, createdAction.Id.ToString())
                 }
             });
 
@@ -130,10 +120,7 @@ namespace Auth0.ManagementApi.IntegrationTests
 
             triggerBindingsAfterCreate.Count.Should().Be(triggerBindingsBeforeCreate.Count + 1);
 
-            await fixture.ApiClient.Actions.UpdateTriggerBindingsAsync("post-login", new UpdateTriggerBindingsRequest
-            {
-                Bindings = new List<UpdateTriggerBindingEntry>()
-            });
+            await fixture.ApiClient.Actions.UpdateTriggerBindingsAsync("post-login", new UpdateTriggerBindingsRequest());
 
             await fixture.ApiClient.Actions.DeleteAsync(createdAction.Id.ToString());
 
@@ -149,8 +136,8 @@ namespace Auth0.ManagementApi.IntegrationTests
                 Name = $"{TestingConstants.ActionPrefix}-{Guid.NewGuid()}",
                 Code = "module.exports = () => {}",
                 Runtime = ActionRuntimeType.Node12,
-                Secrets = new List<ActionSecret> { new ActionSecret { Name = "My_Secret", Value = "Test123" } },
-                SupportedTriggers = new List<TriggerBase> { new TriggerBase { Id = TriggerType.PostLogin, Version = "v2" } }
+                Secrets = new List<ActionSecret> { new ActionSecret("My_Secret", "Test123") },
+                SupportedTriggers = new List<TriggerBase> { new TriggerBase(TriggerType.PostLogin, "v2") }
             });
 
             fixture.TrackIdentifier(CleanUpType.Actions, createdAction.Id);
