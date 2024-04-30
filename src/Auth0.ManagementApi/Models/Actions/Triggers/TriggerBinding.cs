@@ -12,15 +12,7 @@ namespace Auth0.ManagementApi.Models.Actions
     public class TriggerBinding
     {
 
-        /// <summary>
-        /// The unique ID of this binding.
-        /// </summary>
-        public Guid Id { get; set; }
-
-        /// <summary>
-        /// The actions extensibility point.
-        /// </summary>
-        public TriggerType TriggerId { get; set; }
+        #region Properties
 
         /// <summary>
         /// The connected action.
@@ -33,14 +25,39 @@ namespace Auth0.ManagementApi.Models.Actions
         public DateTime CreatedAt { get; set; }
 
         /// <summary>
+        /// The name of the binding.
+        /// </summary>
+        public string DisplayName { get; set; }
+
+        /// <summary>
+        /// The unique ID of this binding.
+        /// </summary>
+        public Guid Id { get; set; }
+
+        /// <summary>
+        /// The actions extensibility point.
+        /// </summary>
+        public TriggerType TriggerId { get; set; }
+
+        /// <summary>
         /// The time when the binding was updated.
         /// </summary>
         public DateTime UpdatedAt { get; set; }
 
+        #endregion
+
+        #region Public Methods
+
         /// <summary>
-        /// The name of the binding.
+        /// 
         /// </summary>
-        public string DisplayName { get; set; }
+        /// <returns></returns>
+        public UpdateTriggerBindingEntry ToUpdateTriggerBindingEntry()
+        {
+            return new UpdateTriggerBindingEntry(DisplayName, TriggerReferenceType.BindingId, Id.ToString());
+        }
+
+        #endregion
 
     }
 
