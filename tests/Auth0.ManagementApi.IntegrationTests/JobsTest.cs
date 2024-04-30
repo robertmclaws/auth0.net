@@ -166,7 +166,7 @@ namespace Auth0.ManagementApi.IntegrationTests
                 ConnectionId = fixture.TestAuth0Connection.Id,
                 Format = UsersExportsJobFormat.JSON,
                 Limit = 1,
-                Fields = new System.Collections.Generic.List<UsersExportsJobField> { new UsersExportsJobField { Name = "email" } }
+                Fields = new List<UsersExportsJobField> { new UsersExportsJobField { Name = "email" } }
             };
 
             var exportUsers = await fixture.ApiClient.Jobs.ExportUsersAsync(request);
