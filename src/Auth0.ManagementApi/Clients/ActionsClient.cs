@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using CodeAction = Auth0.ManagementApi.Models.Actions.CodeAction;
@@ -115,7 +116,7 @@ namespace Auth0.ManagementApi.Clients
         /// <returns>A <see cref="Task"/> that represents the asynchronous delete operation.</returns>
         public Task DeleteAsync(string id, DeleteActionRequest request = null, CancellationToken cancellationToken = default)
         {
-            return Connection.SendAsync<object>(HttpMethod.Delete, BuildUri($"{ActionsBasePath}/{ActionsPath}/{EncodePath(id)}"), request, DefaultHeaders, cancellationToken: cancellationToken);
+            return Connection.SendAsync<object>(HttpMethod.Delete, BuildUri($"{ActionsBasePath}/{ActionsPath}/{EncodePath(id)}", new Dictionary<string, string> { { "force", request.Force.ToString() } }), null, DefaultHeaders, cancellationToken: cancellationToken);
         }
 
 
