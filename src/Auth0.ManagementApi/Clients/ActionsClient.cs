@@ -116,7 +116,7 @@ namespace Auth0.ManagementApi.Clients
         /// <returns>A <see cref="Task"/> that represents the asynchronous delete operation.</returns>
         public Task DeleteAsync(string id, DeleteActionRequest request = null, CancellationToken cancellationToken = default)
         {
-            return Connection.SendAsync<object>(HttpMethod.Delete, BuildUri($"{ActionsBasePath}/{ActionsPath}/{EncodePath(id)}", new Dictionary<string, string> { { "force", request.Force.ToString() } }), null, DefaultHeaders, cancellationToken: cancellationToken);
+            return Connection.SendAsync<object>(HttpMethod.Delete, BuildUri($"{ActionsBasePath}/{ActionsPath}/{EncodePath(id)}", new Dictionary<string, string> { { "force", request.Force.ToString().ToLower() } }), null, DefaultHeaders, cancellationToken: cancellationToken);
         }
 
 
